@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine AS builder
+FROM golang:1.24-bookworm AS builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -7,18 +7,22 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o api ./cmd/api
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
+RUN CGO_ENABLED=0 GOOS=linux GOAMD64=v3 go build -ldflags="-s -w" -o api ./cmd/api
 
-FROM alpine:latest
+FROM gcr.io/distroless/base-debian12
 
-WORKDIR /root/
+WORKDIR /
 
-COPY --from=builder /app/api .
-
+COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
+COPY --from=builder /app/api /api
 COPY --from=builder /app/data ./data
 
 EXPOSE 8080
 
 ENV PREFORK=true
 
-CMD ["./api"]
+USER nonroot:nonroot
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["/api"]

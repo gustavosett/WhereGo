@@ -3,15 +3,18 @@ package main
 import (
 	"log"
 	"os"
+	"runtime"
+	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gustavosett/WhereGo/internal/geoip"
 	"github.com/gustavosett/WhereGo/internal/handlers"
 )
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	geoService, err := geoip.NewService("data/city.db")
 	if err != nil {
 		log.Fatalf("Failed to initialize GeoIP service: %v", err)
@@ -23,12 +26,23 @@ func main() {
 	}
 
 	app := fiber.New(fiber.Config{
-		JSONEncoder:           json.Marshal,
-		JSONDecoder:           json.Unmarshal,
-		DisableStartupMessage: true,
-		Prefork:               os.Getenv("PREFORK") == "true",
+		JSONEncoder:               json.Marshal,
+		JSONDecoder:               json.Unmarshal,
+		DisableStartupMessage:     true,
+		Prefork:                   os.Getenv("PREFORK") == "true",
+		ReduceMemoryUsage:         true,
+		StrictRouting:             true,
+		CaseSensitive:             true,
+		DisableDefaultDate:        true,
+		DisableDefaultContentType: true,
+		ReadTimeout:               5 * time.Second,
+		WriteTimeout:              5 * time.Second,
+		IdleTimeout:               120 * time.Second,
+		ReadBufferSize:            4096,
+		WriteBufferSize:           4096,
+		CompressedFileSuffix:      ".gz",
+		GETOnly:                   true,
 	})
-	app.Use(recover.New())
 
 	app.Get("/health", handlers.HealthCheck)
 	app.Get("/lookup/:ip", handler.Lookup)
