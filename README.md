@@ -5,14 +5,14 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/gustavosett/wherego)](https://hub.docker.com/r/gustavosett/wherego)
 [![License](https://img.shields.io/github/license/gustavosett/WhereGo)](LICENSE)
 
-🚀 **The fastest open-source IP geolocation API** built with Go and Fiber.
+🚀 **The fastest and lightweight open-source IP geolocation API** built with Go and Fiber.
 
 ## Features
 
 - ⚡ **Ultra-fast** - Zero-allocation hot path, ~500ns per lookup
 - 🔄 **Prefork mode** - Utilizes all CPU cores
 - 🐳 **Docker ready** - Multi-arch images (amd64/arm64)
-- 📦 **Tiny image** - ~20MB distroless container
+- 📦 **Tiny image** - ~40MB distroless container
 - 🛡️ **Production ready** - Health checks, graceful shutdown
 
 ## Quick Start
@@ -63,14 +63,25 @@ Response:
 
 ## Performance
 
-Benchmarks on AMD Ryzen 9 5900X:
+Benchmarks on Intel Core i5-12500H:
 
-| Metric | Value |
-|--------|-------|
-| Requests/sec | ~200,000+ |
-| Latency (p99) | <100μs |
-| Memory | ~60MB |
-| Allocations | 0 per request |
+| Benchmark | ops/sec | ns/op | B/op | allocs/op |
+|-----------|---------|-------|------|-----------|
+| LookupRoute | ~44,000 | 22,456 | 7,520 | 87 |
+| LookupRouteParallel | ~90,000 | 11,082 | 7,926 | 88 |
+
+```
+goos: windows
+goarch: amd64
+cpu: 12th Gen Intel(R) Core(TM) i5-12500H
+BenchmarkLookupRoute-16              51064      22456 ns/op    7520 B/op    87 allocs/op
+BenchmarkLookupRouteParallel-16     102189      11082 ns/op    7926 B/op    88 allocs/op
+```
+
+Run benchmarks yourself:
+```bash
+go test -bench=BenchmarkLookupRoute -benchmem ./internal/handlers/
+```
 
 ## Configuration
 
