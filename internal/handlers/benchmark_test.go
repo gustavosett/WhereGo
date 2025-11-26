@@ -18,6 +18,7 @@ const (
 	benchLookupPath   = "/lookup/"
 )
 
+//nolint:errcheck // benchmark cleanup
 func BenchmarkLookupRoute(b *testing.B) {
 	service, err := geoip.NewService(benchDBPath)
 	if err != nil {
@@ -44,6 +45,7 @@ func BenchmarkLookupRoute(b *testing.B) {
 	}
 }
 
+//nolint:errcheck // benchmark cleanup
 func BenchmarkLookupRouteParallel(b *testing.B) {
 	service, err := geoip.NewService(benchDBPath)
 	if err != nil {
@@ -71,6 +73,7 @@ func BenchmarkLookupRouteParallel(b *testing.B) {
 	})
 }
 
+//nolint:errcheck // benchmark cleanup
 func BenchmarkLookupRouteMultipleIPs(b *testing.B) {
 	service, err := geoip.NewService(benchDBPath)
 	if err != nil {
@@ -108,6 +111,7 @@ func BenchmarkLookupRouteMultipleIPs(b *testing.B) {
 	}
 }
 
+//nolint:errcheck // benchmark cleanup
 func BenchmarkHealthRoute(b *testing.B) {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
