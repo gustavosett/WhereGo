@@ -41,6 +41,7 @@ func s2b(s string) []byte {
 	return unsafe.Slice(unsafe.StringData(s), len(s))
 }
 
+//nolint:errcheck // buffer writes to response body don't fail
 func (h *GeoIPHandler) Lookup(c *fiber.Ctx) error {
 	ipParam := c.Params("ip")
 

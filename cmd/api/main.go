@@ -19,7 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize GeoIP service: %v", err)
 	}
-	defer geoService.DB.Close()
+	defer geoService.DB.Close() //nolint:errcheck
 
 	handler := &handlers.GeoIPHandler{
 		GeoService: geoService,

@@ -16,7 +16,7 @@ func BenchmarkLookupIP(b *testing.B) {
 		b.Skip(skipMessage)
 		return
 	}
-	defer service.DB.Close()
+	defer service.DB.Close() //nolint:errcheck
 
 	data := service.GetLookupData()
 	defer service.PutLookupData(data)
@@ -35,7 +35,7 @@ func BenchmarkLookupIPParallel(b *testing.B) {
 		b.Skip(skipMessage)
 		return
 	}
-	defer service.DB.Close()
+	defer service.DB.Close() //nolint:errcheck
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -56,7 +56,7 @@ func BenchmarkParseIP(b *testing.B) {
 		b.Skip(skipMessage)
 		return
 	}
-	defer service.DB.Close()
+	defer service.DB.Close() //nolint:errcheck
 
 	data := service.GetLookupData()
 	defer service.PutLookupData(data)

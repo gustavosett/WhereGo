@@ -1,16 +1,10 @@
-version: "2"
-
 run:
   timeout: 5m
   tests: true
 
 linters:
-  enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
   disable:
     - goconst
+
+issues:
+  exclude-use-default: false
