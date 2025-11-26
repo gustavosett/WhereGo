@@ -2,7 +2,7 @@ package geoip
 
 import (
 	"errors"
-	"net"
+	"net/netip"
 	"sync"
 
 	"github.com/oschwald/geoip2-golang"
@@ -57,12 +57,12 @@ func (s *Service) PutLookupData(d *LookupData) {
 }
 
 func (s *Service) LookupIP(ipStr string, data *LookupData) error {
-	ip := net.ParseIP(ipStr)
-	if ip == nil {
+	addr, err := netip.ParseAddr(ipStr)
+	if err != nil {
 		return ErrInvalidIP
 	}
 
-	record, err := s.DB.City(ip)
+	record, err := s.DB.City(addr.AsSlice())
 	if err != nil {
 		return err
 	}

@@ -265,14 +265,9 @@ func TestHealthCheck(t *testing.T) {
 		t.Fatalf("Failed to read response body: %v", err)
 	}
 
-	var healthResp HealthResponse
-	err = json.Unmarshal(body, &healthResp)
-	if err != nil {
-		t.Fatalf("Failed to decode response body: %v", err)
-	}
-
-	if healthResp.Status != "ok" {
-		t.Errorf("Expected status 'ok', got '%s'", healthResp.Status)
+	expected := `{"status":"ok"}`
+	if string(body) != expected {
+		t.Errorf("Expected body '%s', got '%s'", expected, string(body))
 	}
 }
 
@@ -289,30 +284,5 @@ func TestHealthCheckContentType(t *testing.T) {
 	contentType := resp.Header.Get(contentTypeHeader)
 	if contentType != applicationJSON {
 		t.Errorf("Expected Content-Type '%s', got '%s'", applicationJSON, contentType)
-	}
-}
-
-func TestHealthResponseJSONMarshaling(t *testing.T) {
-	response := HealthResponse{Status: "ok"}
-
-	data, err := json.Marshal(response)
-	if err != nil {
-		t.Fatalf("Failed to marshal response: %v", err)
-	}
-
-	var unmarshaled HealthResponse
-	err = json.Unmarshal(data, &unmarshaled)
-	if err != nil {
-		t.Fatalf("Failed to unmarshal response: %v", err)
-	}
-
-	if unmarshaled.Status != "ok" {
-		t.Errorf("Expected Status 'ok', got '%s'", unmarshaled.Status)
-	}
-
-	// Verify JSON tag is correct
-	jsonStr := string(data)
-	if !contains(jsonStr, `"status"`) {
-		t.Errorf("Expected JSON to contain tag \"status\", got: %s", jsonStr)
 	}
 }

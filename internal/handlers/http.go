@@ -18,8 +18,9 @@ type Response struct {
 }
 
 var (
-	errInvalidIP = []byte("invalid IP address")
-	errNoData    = []byte("no data found for the given IP")
+	errInvalidIP     = []byte("invalid IP address")
+	errNoData        = []byte("no data found for the given IP")
+	healthOKResponse = []byte(`{"status":"ok"}`)
 )
 
 func (h *GeoIPHandler) Lookup(c *fiber.Ctx) error {
@@ -45,10 +46,7 @@ func (h *GeoIPHandler) Lookup(c *fiber.Ctx) error {
 	})
 }
 
-type HealthResponse struct {
-	Status string `json:"status"`
-}
-
 func HealthCheck(c *fiber.Ctx) error {
-	return c.JSON(HealthResponse{Status: "ok"})
+	c.Set("Content-Type", "application/json")
+	return c.Send(healthOKResponse)
 }

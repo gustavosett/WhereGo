@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gustavosett/WhereGo/internal/geoip"
 	"github.com/gustavosett/WhereGo/internal/handlers"
@@ -23,10 +23,11 @@ func main() {
 	}
 
 	app := fiber.New(fiber.Config{
-		JSONEncoder: json.Marshal,
-		JSONDecoder: json.Unmarshal,
+		JSONEncoder:           json.Marshal,
+		JSONDecoder:           json.Unmarshal,
+		DisableStartupMessage: true,
+		Prefork:               os.Getenv("PREFORK") == "true",
 	})
-	app.Use(logger.New())
 	app.Use(recover.New())
 
 	app.Get("/health", handlers.HealthCheck)
