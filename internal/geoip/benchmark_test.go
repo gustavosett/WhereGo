@@ -4,10 +4,16 @@ import (
 	"testing"
 )
 
+const (
+	testDBPath   = "../../data/city.db"
+	skipMessage  = "Database not available for benchmarking"
+	testIPGoogle = "8.8.8.8"
+)
+
 func BenchmarkLookupIP(b *testing.B) {
-	service, err := NewService("../../data/city.db")
+	service, err := NewService(testDBPath)
 	if err != nil {
-		b.Skip("Database not available for benchmarking")
+		b.Skip(skipMessage)
 		return
 	}
 	defer service.DB.Close()
@@ -19,14 +25,14 @@ func BenchmarkLookupIP(b *testing.B) {
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
-		_ = service.LookupIP("8.8.8.8", data)
+		_ = service.LookupIP(testIPGoogle, data)
 	}
 }
 
 func BenchmarkLookupIPParallel(b *testing.B) {
-	service, err := NewService("../../data/city.db")
+	service, err := NewService(testDBPath)
 	if err != nil {
-		b.Skip("Database not available for benchmarking")
+		b.Skip(skipMessage)
 		return
 	}
 	defer service.DB.Close()
@@ -39,15 +45,15 @@ func BenchmarkLookupIPParallel(b *testing.B) {
 		defer service.PutLookupData(data)
 
 		for pb.Next() {
-			_ = service.LookupIP("8.8.8.8", data)
+			_ = service.LookupIP(testIPGoogle, data)
 		}
 	})
 }
 
 func BenchmarkParseIP(b *testing.B) {
-	service, err := NewService("../../data/city.db")
+	service, err := NewService(testDBPath)
 	if err != nil {
-		b.Skip("Database not available for benchmarking")
+		b.Skip(skipMessage)
 		return
 	}
 	defer service.DB.Close()
@@ -56,7 +62,7 @@ func BenchmarkParseIP(b *testing.B) {
 	defer service.PutLookupData(data)
 
 	ips := []string{
-		"8.8.8.8",
+		testIPGoogle,
 		"1.1.1.1",
 		"208.67.222.222",
 		"9.9.9.9",

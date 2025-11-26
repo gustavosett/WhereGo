@@ -5,35 +5,42 @@ import (
 	"testing"
 )
 
+const (
+	testCountry  = "United States"
+	testCity     = "New York"
+	testISOCode  = "US"
+	testTimezone = "America/New_York"
+)
+
 func TestLookupData(t *testing.T) {
 	// Test that LookupData struct can be created properly
 	data := &LookupData{
-		Country:  "United States",
-		City:     "New York",
-		ISOCode:  "US",
-		Timezone: "America/New_York",
+		Country:  testCountry,
+		City:     testCity,
+		ISOCode:  testISOCode,
+		Timezone: testTimezone,
 	}
 
-	if data.Country != "United States" {
-		t.Errorf("Expected Country 'United States', got '%s'", data.Country)
+	if data.Country != testCountry {
+		t.Errorf("Expected Country '%s', got '%s'", testCountry, data.Country)
 	}
-	if data.City != "New York" {
-		t.Errorf("Expected City 'New York', got '%s'", data.City)
+	if data.City != testCity {
+		t.Errorf("Expected City '%s', got '%s'", testCity, data.City)
 	}
-	if data.ISOCode != "US" {
-		t.Errorf("Expected ISOCode 'US', got '%s'", data.ISOCode)
+	if data.ISOCode != testISOCode {
+		t.Errorf("Expected ISOCode '%s', got '%s'", testISOCode, data.ISOCode)
 	}
-	if data.Timezone != "America/New_York" {
-		t.Errorf("Expected Timezone 'America/New_York', got '%s'", data.Timezone)
+	if data.Timezone != testTimezone {
+		t.Errorf("Expected Timezone '%s', got '%s'", testTimezone, data.Timezone)
 	}
 }
 
 func TestLookupDataReset(t *testing.T) {
 	data := &LookupData{
-		Country:  "United States",
-		City:     "New York",
-		ISOCode:  "US",
-		Timezone: "America/New_York",
+		Country:  testCountry,
+		City:     testCity,
+		ISOCode:  testISOCode,
+		Timezone: testTimezone,
 	}
 
 	data.Reset()

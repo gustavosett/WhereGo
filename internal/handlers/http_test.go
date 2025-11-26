@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,26 +13,33 @@ import (
 const (
 	contentTypeHeader = "Content-Type"
 	applicationJSON   = "application/json"
+	testIPGoogle      = "8.8.8.8"
+	testCountryUS     = "United States"
+	testCityMountain  = "Mountain View"
+	testISOCodeUS     = "US"
+	testTimezonePST   = "America/Los_Angeles"
+	healthEndpoint    = "/health"
+	testEndpoint      = "/test"
 )
 
 func TestResponseJSONMarshaling(t *testing.T) {
 	response := Response{
-		IP:       "8.8.8.8",
-		Country:  "United States",
-		City:     "Mountain View",
-		ISOCode:  "US",
-		Timezone: "America/Los_Angeles",
+		IP:       testIPGoogle,
+		Country:  testCountryUS,
+		City:     testCityMountain,
+		ISOCode:  testISOCodeUS,
+		Timezone: testTimezonePST,
 	}
 
 	data, err := json.Marshal(response)
 	if err != nil {
-		t.Fatalf("Failed to marshal response: %v", err)
+		t.Fatalf("marshal error: %v", err)
 	}
 
 	var unmarshaled Response
 	err = json.Unmarshal(data, &unmarshaled)
 	if err != nil {
-		t.Fatalf("Failed to unmarshal response: %v", err)
+		t.Fatalf("unmarshal error: %v", err)
 	}
 
 	if unmarshaled.IP != response.IP {
@@ -62,7 +70,7 @@ func TestResponseJSONTags(t *testing.T) {
 
 	data, err := json.Marshal(response)
 	if err != nil {
-		t.Fatalf("Failed to marshal response: %v", err)
+		t.Fatalf("marshal error: %v", err)
 	}
 
 	jsonStr := string(data)
@@ -70,23 +78,10 @@ func TestResponseJSONTags(t *testing.T) {
 	// Verify JSON tags are correct
 	expectedTags := []string{`"ip"`, `"country"`, `"city"`, `"iso_code"`, `"timezone"`}
 	for _, tag := range expectedTags {
-		if !contains(jsonStr, tag) {
+		if !strings.Contains(jsonStr, tag) {
 			t.Errorf("Expected JSON to contain tag %s, got: %s", tag, jsonStr)
 		}
 	}
-}
-
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > 0 && containsHelper(s, substr))
-}
-
-func containsHelper(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
 }
 
 func TestGeoIPHandlerLookupWithNilService(t *testing.T) {
@@ -94,24 +89,9 @@ func TestGeoIPHandlerLookupWithNilService(t *testing.T) {
 		GeoService: nil,
 	}
 
-	// This test verifies the handler struct can be created
-	// even if the service is nil (though it would panic on use)
 	if handler.GeoService != nil {
 		t.Error("Expected nil GeoService")
 	}
-}
-
-// MockGeoService is a mock implementation for testing
-type MockGeoService struct {
-	LookupResult *MockLookupData
-	LookupError  error
-}
-
-type MockLookupData struct {
-	Country  string
-	City     string
-	ISOCode  string
-	Timezone string
 }
 
 func TestLookupEmptyIP(t *testing.T) {
@@ -123,14 +103,12 @@ func TestLookupEmptyIP(t *testing.T) {
 
 	app.Get("/lookup/:ip", handler.Lookup)
 
-	// Test with empty path (this will be a 404 due to routing)
 	req := httptest.NewRequest("GET", "/lookup/", nil)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test request: %v", err)
+		t.Fatalf("test error: %v", err)
 	}
 
-	// Empty IP in path should return 404 (route not matched)
 	if resp.StatusCode != fiber.StatusNotFound {
 		t.Errorf("Expected status 404, got %d", resp.StatusCode)
 	}
@@ -141,13 +119,13 @@ func TestResponseEmptyFields(t *testing.T) {
 
 	data, err := json.Marshal(response)
 	if err != nil {
-		t.Fatalf("Failed to marshal empty response: %v", err)
+		t.Fatalf("marshal error: %v", err)
 	}
 
 	var unmarshaled Response
 	err = json.Unmarshal(data, &unmarshaled)
 	if err != nil {
-		t.Fatalf("Failed to unmarshal empty response: %v", err)
+		t.Fatalf("unmarshal error: %v", err)
 	}
 
 	if unmarshaled.IP != "" {
@@ -172,14 +150,14 @@ func TestHTTPStatusCodes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			app := fiber.New()
 
-			app.Get("/test", func(c *fiber.Ctx) error {
+			app.Get(testEndpoint, func(c *fiber.Ctx) error {
 				return c.SendStatus(tt.expectedStatus)
 			})
 
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequest("GET", testEndpoint, nil)
 			resp, err := app.Test(req)
 			if err != nil {
-				t.Fatalf("Failed to test request: %v", err)
+				t.Fatalf("test error: %v", err)
 			}
 
 			if resp.StatusCode != tt.expectedStatus {
@@ -192,20 +170,20 @@ func TestHTTPStatusCodes(t *testing.T) {
 func TestContentTypeHeader(t *testing.T) {
 	app := fiber.New()
 
-	app.Get("/test", func(c *fiber.Ctx) error {
+	app.Get(testEndpoint, func(c *fiber.Ctx) error {
 		c.Set(contentTypeHeader, applicationJSON)
 		return c.SendString("{}")
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequest("GET", testEndpoint, nil)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test request: %v", err)
+		t.Fatalf("test error: %v", err)
 	}
 
 	contentType := resp.Header.Get(contentTypeHeader)
 	if contentType != applicationJSON {
-		t.Errorf("Expected Content-Type 'application/json', got '%s'", contentType)
+		t.Errorf("Expected Content-Type '%s', got '%s'", applicationJSON, contentType)
 	}
 }
 
@@ -213,32 +191,32 @@ func TestJSONEncoder(t *testing.T) {
 	app := fiber.New()
 
 	response := Response{
-		IP:       "8.8.8.8",
-		Country:  "United States",
-		City:     "Mountain View",
-		ISOCode:  "US",
-		Timezone: "America/Los_Angeles",
+		IP:       testIPGoogle,
+		Country:  testCountryUS,
+		City:     testCityMountain,
+		ISOCode:  testISOCodeUS,
+		Timezone: testTimezonePST,
 	}
 
-	app.Get("/test", func(c *fiber.Ctx) error {
+	app.Get(testEndpoint, func(c *fiber.Ctx) error {
 		return c.JSON(response)
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequest("GET", testEndpoint, nil)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test request: %v", err)
+		t.Fatalf("test error: %v", err)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		t.Fatalf("Failed to read response body: %v", err)
+		t.Fatalf("read error: %v", err)
 	}
 
 	var decoded Response
 	err = json.Unmarshal(body, &decoded)
 	if err != nil {
-		t.Fatalf("Failed to decode response body: %v", err)
+		t.Fatalf("decode error: %v", err)
 	}
 
 	if decoded.IP != response.IP {
@@ -248,12 +226,12 @@ func TestJSONEncoder(t *testing.T) {
 
 func TestHealthCheck(t *testing.T) {
 	app := fiber.New()
-	app.Get("/health", HealthCheck)
+	app.Get(healthEndpoint, HealthCheck)
 
-	req := httptest.NewRequest("GET", "/health", nil)
+	req := httptest.NewRequest("GET", healthEndpoint, nil)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test request: %v", err)
+		t.Fatalf("test error: %v", err)
 	}
 
 	if resp.StatusCode != fiber.StatusOK {
@@ -262,7 +240,7 @@ func TestHealthCheck(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		t.Fatalf("Failed to read response body: %v", err)
+		t.Fatalf("read error: %v", err)
 	}
 
 	expected := `{"status":"ok"}`
@@ -273,12 +251,12 @@ func TestHealthCheck(t *testing.T) {
 
 func TestHealthCheckContentType(t *testing.T) {
 	app := fiber.New()
-	app.Get("/health", HealthCheck)
+	app.Get(healthEndpoint, HealthCheck)
 
-	req := httptest.NewRequest("GET", "/health", nil)
+	req := httptest.NewRequest("GET", healthEndpoint, nil)
 	resp, err := app.Test(req)
 	if err != nil {
-		t.Fatalf("Failed to test request: %v", err)
+		t.Fatalf("test error: %v", err)
 	}
 
 	contentType := resp.Header.Get(contentTypeHeader)
