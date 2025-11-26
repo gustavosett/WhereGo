@@ -7,6 +7,8 @@
 
 🚀 **The fastest and lightweight open-source IP geolocation API** built with Go and Fiber.
 
+![WhereGo Banner](./assets/WhereGo.jpg)
+
 ## Features
 
 - ⚡ **Ultra-fast** - Zero-allocation hot path, ~500ns per lookup
