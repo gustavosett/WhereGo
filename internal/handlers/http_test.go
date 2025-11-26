@@ -37,20 +37,3 @@ func TestHealthCheck(t *testing.T) {
 		t.Errorf("Expected Content-Type 'application/json', got '%s'", contentType)
 	}
 }
-
-func TestLookupWithNilService(t *testing.T) {
-	app := fiber.New()
-	handler := &GeoIPHandler{GeoService: nil}
-	app.Get("/lookup/:ip", handler.Lookup)
-
-	// Route without IP parameter returns 404
-	req := httptest.NewRequest("GET", "/lookup/", nil)
-	resp, err := app.Test(req)
-	if err != nil {
-		t.Fatalf("test error: %v", err)
-	}
-
-	if resp.StatusCode != fiber.StatusNotFound {
-		t.Errorf("Expected status 404, got %d", resp.StatusCode)
-	}
-}

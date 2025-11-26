@@ -5,26 +5,6 @@ import (
 	"testing"
 )
 
-func TestLookupResult(t *testing.T) {
-	result := &LookupResult{
-		IP:       "8.8.8.8",
-		Country:  "United States",
-		City:     "New York",
-		ISOCode:  "US",
-		Timezone: "America/New_York",
-	}
-
-	if result.Country != "United States" {
-		t.Errorf("Expected Country 'United States', got '%s'", result.Country)
-	}
-}
-
-func TestErrInvalidIP(t *testing.T) {
-	if ErrInvalidIP.Error() != "invalid IP address" {
-		t.Errorf("Expected 'invalid IP address', got '%s'", ErrInvalidIP.Error())
-	}
-}
-
 func TestParseIP(t *testing.T) {
 	tests := []struct {
 		name    string

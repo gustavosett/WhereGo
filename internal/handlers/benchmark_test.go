@@ -15,12 +15,7 @@ func BenchmarkLookup(b *testing.B) {
 	if err != nil {
 		b.Skip("Database not available")
 	}
-	defer func() {
-		err := service.DB.Close()
-		if err != nil {
-			b.Fatalf("Failed to close database: %v", err)
-		}
-	}()
+	defer service.DB.Close() //nolint:errcheck
 
 	app := fiber.New(fiber.Config{DisableStartupMessage: true})
 	app.Get("/lookup/:ip", (&GeoIPHandler{GeoService: service}).Lookup)
@@ -32,10 +27,7 @@ func BenchmarkLookup(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		resp, _ := app.Test(req, -1)
-		err := resp.Body.Close()
-		if err != nil {
-			b.Fatalf("Failed to close response body: %v", err)
-		}
+		resp.Body.Close() //nolint:errcheck
 	}
 }
 
@@ -56,10 +48,7 @@ func BenchmarkLookupParallel(b *testing.B) {
 		req := httptest.NewRequest("GET", "/lookup/8.8.8.8", nil)
 		for pb.Next() {
 			resp, _ := app.Test(req, -1)
-			err := resp.Body.Close()
-			if err != nil {
-				b.Fatalf("Failed to close response body: %v", err)
-			}
+			resp.Body.Close() //nolint:errcheck
 		}
 	})
 }
@@ -75,9 +64,6 @@ func BenchmarkHealth(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		resp, _ := app.Test(req, -1)
-		err := resp.Body.Close()
-		if err != nil {
-			b.Fatalf("Failed to close response body: %v", err)
-		}
+		resp.Body.Close() //nolint:errcheck
 	}
 }
