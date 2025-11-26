@@ -1,13 +1,18 @@
 package geoip
 
 import (
+	"errors"
 	"net"
+	"sync"
 
 	"github.com/oschwald/geoip2-golang"
 )
 
+var ErrInvalidIP = errors.New("invalid IP address")
+
 type Service struct {
-	DB *geoip2.Reader
+	DB   *geoip2.Reader
+	pool sync.Pool
 }
 
 func NewService(dbPath string) (*Service, error) {
@@ -15,7 +20,14 @@ func NewService(dbPath string) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Service{DB: db}, nil
+	return &Service{
+		DB: db,
+		pool: sync.Pool{
+			New: func() any {
+				return &LookupData{}
+			},
+		},
+	}, nil
 }
 
 type LookupData struct {
@@ -25,23 +37,40 @@ type LookupData struct {
 	Timezone string
 }
 
-func (s *Service) LookupIP(ipStr string) (*LookupData, error) {
+// Reset clears the LookupData for reuse
+func (d *LookupData) Reset() {
+	d.Country = ""
+	d.City = ""
+	d.ISOCode = ""
+	d.Timezone = ""
+}
+
+// GetLookupData gets a LookupData from the pool
+func (s *Service) GetLookupData() *LookupData {
+	return s.pool.Get().(*LookupData)
+}
+
+// PutLookupData returns a LookupData to the pool
+func (s *Service) PutLookupData(d *LookupData) {
+	d.Reset()
+	s.pool.Put(d)
+}
+
+func (s *Service) LookupIP(ipStr string, data *LookupData) error {
 	ip := net.ParseIP(ipStr)
 	if ip == nil {
-		return nil, nil
+		return ErrInvalidIP
 	}
 
 	record, err := s.DB.City(ip)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	data := &LookupData{
-		Country:  record.Country.Names["en"],
-		City:     record.City.Names["en"],
-		ISOCode:  record.Country.IsoCode,
-		Timezone: record.Location.TimeZone,
-	}
+	data.Country = record.Country.Names["en"]
+	data.City = record.City.Names["en"]
+	data.ISOCode = record.Country.IsoCode
+	data.Timezone = record.Location.TimeZone
 
-	return data, nil
+	return nil
 }

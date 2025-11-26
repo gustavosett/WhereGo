@@ -28,6 +28,39 @@ func TestLookupData(t *testing.T) {
 	}
 }
 
+func TestLookupDataReset(t *testing.T) {
+	data := &LookupData{
+		Country:  "United States",
+		City:     "New York",
+		ISOCode:  "US",
+		Timezone: "America/New_York",
+	}
+
+	data.Reset()
+
+	if data.Country != "" {
+		t.Errorf("Expected empty Country after Reset, got '%s'", data.Country)
+	}
+	if data.City != "" {
+		t.Errorf("Expected empty City after Reset, got '%s'", data.City)
+	}
+	if data.ISOCode != "" {
+		t.Errorf("Expected empty ISOCode after Reset, got '%s'", data.ISOCode)
+	}
+	if data.Timezone != "" {
+		t.Errorf("Expected empty Timezone after Reset, got '%s'", data.Timezone)
+	}
+}
+
+func TestErrInvalidIP(t *testing.T) {
+	if ErrInvalidIP == nil {
+		t.Error("ErrInvalidIP should not be nil")
+	}
+	if ErrInvalidIP.Error() != "invalid IP address" {
+		t.Errorf("Expected 'invalid IP address', got '%s'", ErrInvalidIP.Error())
+	}
+}
+
 func TestParseIP(t *testing.T) {
 	tests := []struct {
 		name    string

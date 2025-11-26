@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -21,7 +22,10 @@ func main() {
 		GeoService: geoService,
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		JSONEncoder: json.Marshal,
+		JSONDecoder: json.Unmarshal,
+	})
 	app.Use(logger.New())
 	app.Use(recover.New())
 

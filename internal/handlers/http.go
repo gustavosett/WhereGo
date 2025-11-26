@@ -17,28 +17,32 @@ type Response struct {
 	Timezone string `json:"timezone"`
 }
 
+var (
+	errInvalidIP = []byte("invalid IP address")
+	errNoData    = []byte("no data found for the given IP")
+)
+
 func (h *GeoIPHandler) Lookup(c *fiber.Ctx) error {
 	ipParam := c.Params("ip")
 
-	data, err := h.GeoService.LookupIP(ipParam)
+	data := h.GeoService.GetLookupData()
+	defer h.GeoService.PutLookupData(data)
 
+	err := h.GeoService.LookupIP(ipParam, data)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		if err == geoip.ErrInvalidIP {
+			return c.Status(fiber.StatusBadRequest).Send(errInvalidIP)
+		}
+		return c.Status(fiber.StatusNotFound).Send(errNoData)
 	}
 
-	if data == nil {
-		return c.Status(fiber.StatusNotFound).SendString("No data found for the given IP")
-	}
-
-	response := Response{
+	return c.JSON(Response{
 		IP:       ipParam,
 		Country:  data.Country,
 		City:     data.City,
 		ISOCode:  data.ISOCode,
 		Timezone: data.Timezone,
-	}
-
-	return c.JSON(response)
+	})
 }
 
 type HealthResponse struct {
