@@ -2,28 +2,27 @@ package handlers
 
 import (
 	"io"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 )
 
 func TestHealthCheck(t *testing.T) {
-	app := fiber.New()
-	app.Get("/health", HealthCheck)
+	e := echo.New()
+	e.GET("/health", HealthCheck)
 
-	req := httptest.NewRequest("GET", "/health", nil)
-	resp, err := app.Test(req)
-	if err != nil {
-		t.Fatalf("test error: %v", err)
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
 	}
 
-	if resp.StatusCode != fiber.StatusOK {
-		t.Errorf("Expected status 200, got %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(rec.Body)
 	if err != nil {
 		t.Fatalf("read error: %v", err)
 	}
@@ -32,8 +31,8 @@ func TestHealthCheck(t *testing.T) {
 		t.Errorf("Expected body to contain status ok, got '%s'", string(body))
 	}
 
-	contentType := resp.Header.Get("Content-Type")
-	if contentType != "application/json" {
+	contentType := rec.Header().Get("Content-Type")
+	if !strings.HasPrefix(contentType, "application/json") {
 		t.Errorf("Expected Content-Type 'application/json', got '%s'", contentType)
 	}
 }

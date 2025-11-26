@@ -1,15 +1,14 @@
 package main
 
 import (
+	"errors"
 	"log"
-	"os"
-	"time"
+	"net/http"
 
-	jsoniter "github.com/json-iterator/go"
-
-	"github.com/gofiber/fiber/v2"
 	"github.com/gustavosett/WhereGo/internal/geoip"
 	"github.com/gustavosett/WhereGo/internal/handlers"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/labstack/echo/v4"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -25,23 +24,29 @@ func main() {
 		GeoService: geoService,
 	}
 
-	app := fiber.New(fiber.Config{
-		JSONEncoder:           json.Marshal,
-		JSONDecoder:           json.Unmarshal,
-		DisableStartupMessage: true,
-		Prefork:               os.Getenv("PREFORK") == "true",
-		DisableDefaultDate:    true,
-		ReadTimeout:           5 * time.Second,
-		WriteTimeout:          5 * time.Second,
-		IdleTimeout:           120 * time.Second,
-		GETOnly:               true,
-	})
+	e := echo.New()
+	e.JSONSerializer = &JSONSerializer{}
 
-	app.Get("/health", handlers.HealthCheck)
-	app.Get("/lookup/:ip", handler.Lookup)
+	e.GET("/health", handlers.HealthCheck)
+	e.GET("/lookup/:ip", handler.Lookup)
 
 	log.Println("Starting server on :8080")
-	if err := app.Listen(":8080"); err != nil {
+	if err := e.Start(":8080"); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Server failed: %v", err)
 	}
+}
+
+// JSONSerializer implements echo.JSONSerializer using json-iterator
+type JSONSerializer struct{}
+
+func (s *JSONSerializer) Serialize(c echo.Context, i interface{}, indent string) error {
+	enc := json.NewEncoder(c.Response())
+	if indent != "" {
+		enc.SetIndent("", indent)
+	}
+	return enc.Encode(i)
+}
+
+func (s *JSONSerializer) Deserialize(c echo.Context, i interface{}) error {
+	return json.NewDecoder(c.Request().Body).Decode(i)
 }

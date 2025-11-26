@@ -1,8 +1,10 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
+
 	"github.com/gustavosett/WhereGo/internal/geoip"
+	"github.com/labstack/echo/v4"
 )
 
 type GeoIPHandler struct {
@@ -10,22 +12,22 @@ type GeoIPHandler struct {
 }
 
 var (
-	errInvalidIP = fiber.Map{"error": "invalid IP address"}
-	errNoData    = fiber.Map{"error": "no data found for the given IP"}
-	healthOK     = fiber.Map{"status": "ok"}
+	errInvalidIP = map[string]string{"error": "invalid IP address"}
+	errNoData    = map[string]string{"error": "no data found for the given IP"}
+	healthOK     = map[string]string{"status": "ok"}
 )
 
-func (h *GeoIPHandler) Lookup(c *fiber.Ctx) error {
-	result, err := h.GeoService.LookupIP(c.Params("ip"))
+func (h *GeoIPHandler) Lookup(c echo.Context) error {
+	result, err := h.GeoService.LookupIP(c.Param("ip"))
 	if err != nil {
 		if err == geoip.ErrInvalidIP {
-			return c.Status(fiber.StatusBadRequest).JSON(errInvalidIP)
+			return c.JSON(http.StatusBadRequest, errInvalidIP)
 		}
-		return c.Status(fiber.StatusNotFound).JSON(errNoData)
+		return c.JSON(http.StatusNotFound, errNoData)
 	}
-	return c.JSON(result)
+	return c.JSON(http.StatusOK, result)
 }
 
-func HealthCheck(c *fiber.Ctx) error {
-	return c.JSON(healthOK)
+func HealthCheck(c echo.Context) error {
+	return c.JSON(http.StatusOK, healthOK)
 }
