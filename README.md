@@ -12,6 +12,7 @@
 ## Features
 
 - ⚡ **Ultra-fast** - ~1ms per lookup
+- 🌐 **Multi-language** - Location names in 8 languages
 - 🐳 **Docker ready** - Multi-arch images (amd64/arm64)
 - 📦 **Tiny image** - ~40MB distroless container
 - 🛡️ **Production ready** - Health checks, graceful shutdown
@@ -43,11 +44,37 @@ curl http://localhost:8080/lookup/8.8.8.8
 Response:
 ```json
 {
-  "ip": "8.8.8.8",
-  "country": "United States",
-  "city": "Mountain View",
-  "iso_code": "US",
-  "timezone": "America/Los_Angeles"
+  "City": {
+    "Names": {"en": "Mountain View", ...},
+    "GeoNameID": 5375480
+  },
+  "Country": {
+    "Names": {"en": "United States", "es": "Estados Unidos", ...},
+    "IsoCode": "US",
+    "GeoNameID": 6252001,
+    "IsInEuropeanUnion": false
+  },
+  "Continent": {
+    "Names": {"en": "North America", ...},
+    "Code": "NA",
+    "GeoNameID": 6255149
+  },
+  "Location": {
+    "TimeZone": "America/Los_Angeles",
+    "Latitude": 37.386,
+    "Longitude": -122.0838,
+    "MetroCode": 807,
+    "AccuracyRadius": 1000
+  },
+  "Postal": {"Code": "94035"},
+  "Subdivisions": [{"Names": {"en": "California"}, "IsoCode": "CA", ...}],
+  "RegisteredCountry": {...},
+  "RepresentedCountry": {...},
+  "Traits": {
+    "IsAnonymousProxy": false,
+    "IsAnycast": false,
+    "IsSatelliteProvider": false
+  }
 }
 ```
 

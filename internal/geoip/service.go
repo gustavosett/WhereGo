@@ -21,30 +21,11 @@ func NewService(dbPath string) (*Service, error) {
 	return &Service{DB: db}, nil
 }
 
-type LookupResult struct {
-	IP       string `json:"ip"`
-	Country  string `json:"country"`
-	City     string `json:"city"`
-	ISOCode  string `json:"iso_code"`
-	Timezone string `json:"timezone"`
-}
-
-func (s *Service) LookupIP(ipStr string) (*LookupResult, error) {
+func (s *Service) LookupIP(ipStr string) (*geoip2.City, error) {
 	addr, err := netip.ParseAddr(ipStr)
 	if err != nil {
 		return nil, ErrInvalidIP
 	}
 
-	record, err := s.DB.City(addr.AsSlice())
-	if err != nil {
-		return nil, err
-	}
-
-	return &LookupResult{
-		IP:       ipStr,
-		Country:  record.Country.Names["en"],
-		City:     record.City.Names["en"],
-		ISOCode:  record.Country.IsoCode,
-		Timezone: record.Location.TimeZone,
-	}, nil
+	return s.DB.City(addr.AsSlice())
 }
