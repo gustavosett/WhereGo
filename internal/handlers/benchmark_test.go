@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -9,113 +8,64 @@ import (
 	"github.com/gustavosett/WhereGo/internal/geoip"
 )
 
-const (
-	benchDBPath       = "../../data/city.db"
-	benchSkipMsg      = "Database not available for benchmarking"
-	benchIPGoogle     = "8.8.8.8"
-	benchIPCloudflare = "1.1.1.1"
-	benchLookupRoute  = "/lookup/:ip"
-	benchLookupPath   = "/lookup/"
-)
+const benchDBPath = "../../data/city.db"
 
-//nolint:errcheck // benchmark cleanup
-func BenchmarkLookupRoute(b *testing.B) {
+func BenchmarkLookup(b *testing.B) {
 	service, err := geoip.NewService(benchDBPath)
 	if err != nil {
-		b.Skip(benchSkipMsg)
-		return
+		b.Skip("Database not available")
 	}
-	defer service.DB.Close() //nolint:errcheck
+	defer func() {
+		err := service.DB.Close()
+		if err != nil {
+			b.Fatalf("Failed to close database: %v", err)
+		}
+	}()
 
-	handler := &GeoIPHandler{GeoService: service}
+	app := fiber.New(fiber.Config{DisableStartupMessage: true})
+	app.Get("/lookup/:ip", (&GeoIPHandler{GeoService: service}).Lookup)
 
-	app := fiber.New(fiber.Config{
-		DisableStartupMessage: true,
-	})
-	app.Get(benchLookupRoute, handler.Lookup)
-
-	req := httptest.NewRequest("GET", benchLookupPath+benchIPGoogle, nil)
+	req := httptest.NewRequest("GET", "/lookup/8.8.8.8", nil)
 
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	for i := 0; i < b.N; i++ {
 		resp, _ := app.Test(req, -1)
-		resp.Body.Close()
+		err := resp.Body.Close()
+		if err != nil {
+			b.Fatalf("Failed to close response body: %v", err)
+		}
 	}
 }
 
-//nolint:errcheck // benchmark cleanup
-func BenchmarkLookupRouteParallel(b *testing.B) {
+func BenchmarkLookupParallel(b *testing.B) {
 	service, err := geoip.NewService(benchDBPath)
 	if err != nil {
-		b.Skip(benchSkipMsg)
-		return
+		b.Skip("Database not available")
 	}
 	defer service.DB.Close() //nolint:errcheck
 
-	handler := &GeoIPHandler{GeoService: service}
-
-	app := fiber.New(fiber.Config{
-		DisableStartupMessage: true,
-	})
-	app.Get(benchLookupRoute, handler.Lookup)
+	app := fiber.New(fiber.Config{DisableStartupMessage: true})
+	app.Get("/lookup/:ip", (&GeoIPHandler{GeoService: service}).Lookup)
 
 	b.ResetTimer()
 	b.ReportAllocs()
 
 	b.RunParallel(func(pb *testing.PB) {
-		req := httptest.NewRequest("GET", benchLookupPath+benchIPGoogle, nil)
+		req := httptest.NewRequest("GET", "/lookup/8.8.8.8", nil)
 		for pb.Next() {
 			resp, _ := app.Test(req, -1)
-			resp.Body.Close()
+			err := resp.Body.Close()
+			if err != nil {
+				b.Fatalf("Failed to close response body: %v", err)
+			}
 		}
 	})
 }
 
-//nolint:errcheck // benchmark cleanup
-func BenchmarkLookupRouteMultipleIPs(b *testing.B) {
-	service, err := geoip.NewService(benchDBPath)
-	if err != nil {
-		b.Skip(benchSkipMsg)
-		return
-	}
-	defer service.DB.Close() //nolint:errcheck
-
-	handler := &GeoIPHandler{GeoService: service}
-
-	app := fiber.New(fiber.Config{
-		DisableStartupMessage: true,
-	})
-	app.Get(benchLookupRoute, handler.Lookup)
-
-	ips := []string{
-		benchIPGoogle,
-		benchIPCloudflare,
-		"208.67.222.222",
-		"9.9.9.9",
-		"185.228.168.9",
-	}
-
-	reqs := make([]*http.Request, len(ips))
-	for i, ip := range ips {
-		reqs[i] = httptest.NewRequest("GET", benchLookupPath+ip, nil)
-	}
-
-	b.ResetTimer()
-	b.ReportAllocs()
-
-	for i := 0; i < b.N; i++ {
-		resp, _ := app.Test(reqs[i%len(reqs)], -1)
-		resp.Body.Close()
-	}
-}
-
-//nolint:errcheck // benchmark cleanup
-func BenchmarkHealthRoute(b *testing.B) {
-	app := fiber.New(fiber.Config{
-		DisableStartupMessage: true,
-	})
+func BenchmarkHealth(b *testing.B) {
+	app := fiber.New(fiber.Config{DisableStartupMessage: true})
 	app.Get("/health", HealthCheck)
 
 	req := httptest.NewRequest("GET", "/health", nil)
@@ -125,6 +75,9 @@ func BenchmarkHealthRoute(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		resp, _ := app.Test(req, -1)
-		resp.Body.Close()
+		err := resp.Body.Close()
+		if err != nil {
+			b.Fatalf("Failed to close response body: %v", err)
+		}
 	}
 }

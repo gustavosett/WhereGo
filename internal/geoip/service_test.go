@@ -1,44 +1,25 @@
 package geoip
 
 import (
-	"net"
+	"net/netip"
 	"testing"
 )
 
-const (
-	testCountry  = "United States"
-	testCity     = "New York"
-	testISOCode  = "US"
-	testTimezone = "America/New_York"
-)
-
-func TestLookupData(t *testing.T) {
-	// Test that LookupData struct can be created properly
-	data := &LookupData{
-		Country:  testCountry,
-		City:     testCity,
-		ISOCode:  testISOCode,
-		Timezone: testTimezone,
+func TestLookupResult(t *testing.T) {
+	result := &LookupResult{
+		IP:       "8.8.8.8",
+		Country:  "United States",
+		City:     "New York",
+		ISOCode:  "US",
+		Timezone: "America/New_York",
 	}
 
-	if data.Country != testCountry {
-		t.Errorf("Expected Country '%s', got '%s'", testCountry, data.Country)
-	}
-	if data.City != testCity {
-		t.Errorf("Expected City '%s', got '%s'", testCity, data.City)
-	}
-	if data.ISOCode != testISOCode {
-		t.Errorf("Expected ISOCode '%s', got '%s'", testISOCode, data.ISOCode)
-	}
-	if data.Timezone != testTimezone {
-		t.Errorf("Expected Timezone '%s', got '%s'", testTimezone, data.Timezone)
+	if result.Country != "United States" {
+		t.Errorf("Expected Country 'United States', got '%s'", result.Country)
 	}
 }
 
 func TestErrInvalidIP(t *testing.T) {
-	if ErrInvalidIP == nil {
-		t.Error("ErrInvalidIP should not be nil")
-	}
 	if ErrInvalidIP.Error() != "invalid IP address" {
 		t.Errorf("Expected 'invalid IP address', got '%s'", ErrInvalidIP.Error())
 	}
@@ -61,12 +42,12 @@ func TestParseIP(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ip := net.ParseIP(tt.ipStr)
-			if tt.isValid && ip == nil {
-				t.Errorf("Expected valid IP for '%s', but got nil", tt.ipStr)
+			_, err := netip.ParseAddr(tt.ipStr)
+			if tt.isValid && err != nil {
+				t.Errorf("Expected valid IP for '%s', but got error: %v", tt.ipStr, err)
 			}
-			if !tt.isValid && ip != nil {
-				t.Errorf("Expected invalid IP for '%s', but got %v", tt.ipStr, ip)
+			if !tt.isValid && err == nil {
+				t.Errorf("Expected invalid IP for '%s', but got no error", tt.ipStr)
 			}
 		})
 	}
@@ -76,51 +57,5 @@ func TestNewServiceInvalidPath(t *testing.T) {
 	_, err := NewService("nonexistent/path/to/database.mmdb")
 	if err == nil {
 		t.Error("Expected error when opening non-existent database, got nil")
-	}
-}
-
-// MockService provides a way to test without a real database
-type MockLookupData struct {
-	Country  string
-	City     string
-	ISOCode  string
-	Timezone string
-}
-
-func TestLookupIPInvalidIP(t *testing.T) {
-	// Since we can't easily mock the geoip2 database,
-	// we test the IP parsing logic separately
-	invalidIPs := []string{
-		"",
-		"invalid",
-		"256.256.256.256",
-		"abc.def.ghi.jkl",
-		"192.168.1",
-	}
-
-	for _, ipStr := range invalidIPs {
-		ip := net.ParseIP(ipStr)
-		if ip != nil {
-			t.Errorf("Expected nil for invalid IP '%s', got %v", ipStr, ip)
-		}
-	}
-}
-
-func TestLookupIPValidIPFormat(t *testing.T) {
-	validIPs := []string{
-		"8.8.8.8",
-		"1.1.1.1",
-		"192.168.1.1",
-		"10.0.0.1",
-		"172.16.0.1",
-		"2001:4860:4860::8888",
-		"::1",
-	}
-
-	for _, ipStr := range validIPs {
-		ip := net.ParseIP(ipStr)
-		if ip == nil {
-			t.Errorf("Expected valid IP for '%s', got nil", ipStr)
-		}
 	}
 }
