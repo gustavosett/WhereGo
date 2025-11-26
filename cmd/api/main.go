@@ -5,11 +5,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/goccy/go-json"
+	jsoniter "github.com/json-iterator/go"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gustavosett/WhereGo/internal/geoip"
 	"github.com/gustavosett/WhereGo/internal/handlers"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func main() {
 	geoService, err := geoip.NewService("data/city.db")
@@ -23,18 +26,15 @@ func main() {
 	}
 
 	app := fiber.New(fiber.Config{
-		JSONEncoder:               json.Marshal,
-		JSONDecoder:               json.Unmarshal,
-		DisableStartupMessage:     true,
-		Prefork:                   os.Getenv("PREFORK") == "true",
-		StrictRouting:             true,
-		CaseSensitive:             true,
-		DisableDefaultDate:        true,
-		DisableDefaultContentType: true,
-		ReadTimeout:               5 * time.Second,
-		WriteTimeout:              5 * time.Second,
-		IdleTimeout:               120 * time.Second,
-		GETOnly:                   true,
+		JSONEncoder:           json.Marshal,
+		JSONDecoder:           json.Unmarshal,
+		DisableStartupMessage: true,
+		Prefork:               os.Getenv("PREFORK") == "true",
+		DisableDefaultDate:    true,
+		ReadTimeout:           5 * time.Second,
+		WriteTimeout:          5 * time.Second,
+		IdleTimeout:           120 * time.Second,
+		GETOnly:               true,
 	})
 
 	app.Get("/health", handlers.HealthCheck)
