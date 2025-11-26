@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"runtime"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -13,8 +12,6 @@ import (
 )
 
 func main() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-
 	geoService, err := geoip.NewService("data/city.db")
 	if err != nil {
 		log.Fatalf("Failed to initialize GeoIP service: %v", err)
@@ -30,7 +27,6 @@ func main() {
 		JSONDecoder:               json.Unmarshal,
 		DisableStartupMessage:     true,
 		Prefork:                   os.Getenv("PREFORK") == "true",
-		ReduceMemoryUsage:         true,
 		StrictRouting:             true,
 		CaseSensitive:             true,
 		DisableDefaultDate:        true,
@@ -38,9 +34,6 @@ func main() {
 		ReadTimeout:               5 * time.Second,
 		WriteTimeout:              5 * time.Second,
 		IdleTimeout:               120 * time.Second,
-		ReadBufferSize:            4096,
-		WriteBufferSize:           4096,
-		CompressedFileSuffix:      ".gz",
 		GETOnly:                   true,
 	})
 
