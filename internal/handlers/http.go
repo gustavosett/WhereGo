@@ -40,3 +40,11 @@ func (h *GeoIPHandler) Lookup(c *fiber.Ctx) error {
 
 	return c.JSON(response)
 }
+
+type HealthResponse struct {
+	Status string `json:"status"`
+}
+
+func HealthCheck(c *fiber.Ctx) error {
+	return c.JSON(HealthResponse{Status: "ok"})
+}

@@ -25,6 +25,7 @@ func main() {
 	app.Use(logger.New())
 	app.Use(recover.New())
 
+	app.Get("/health", handlers.HealthCheck)
 	app.Get("/lookup/:ip", handler.Lookup)
 
 	log.Println("Starting server on :8080")
