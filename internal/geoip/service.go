@@ -37,14 +37,6 @@ type LookupData struct {
 	Timezone string
 }
 
-// Reset clears the LookupData for reuse
-func (d *LookupData) Reset() {
-	d.Country = ""
-	d.City = ""
-	d.ISOCode = ""
-	d.Timezone = ""
-}
-
 // GetLookupData gets a LookupData from the pool
 func (s *Service) GetLookupData() *LookupData {
 	return s.pool.Get().(*LookupData)
@@ -52,7 +44,6 @@ func (s *Service) GetLookupData() *LookupData {
 
 // PutLookupData returns a LookupData to the pool
 func (s *Service) PutLookupData(d *LookupData) {
-	d.Reset()
 	s.pool.Put(d)
 }
 
