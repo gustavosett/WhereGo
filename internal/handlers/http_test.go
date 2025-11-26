@@ -22,6 +22,15 @@ const (
 	testEndpoint      = "/test"
 )
 
+// Response is used for test JSON unmarshaling
+type Response struct {
+	IP       string `json:"ip"`
+	Country  string `json:"country"`
+	City     string `json:"city"`
+	ISOCode  string `json:"iso_code"`
+	Timezone string `json:"timezone"`
+}
+
 func TestResponseJSONMarshaling(t *testing.T) {
 	response := Response{
 		IP:       testIPGoogle,

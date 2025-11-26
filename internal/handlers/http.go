@@ -11,15 +11,6 @@ type GeoIPHandler struct {
 	GeoService *geoip.Service
 }
 
-// Response kept for tests
-type Response struct {
-	IP       string `json:"ip"`
-	Country  string `json:"country"`
-	City     string `json:"city"`
-	ISOCode  string `json:"iso_code"`
-	Timezone string `json:"timezone"`
-}
-
 // Pre-allocated byte slices for zero-allocation responses
 var (
 	errInvalidIP     = []byte("invalid IP address")
