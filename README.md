@@ -78,18 +78,9 @@ Response:
 }
 ```
 
-### Health Check
-
-```bash
-curl http://localhost:8080/health
-```
-
-Response:
-```json
-{"status":"ok"}
-```
-
 ## Performance
+
+![WhereGo Benchmark](./assets/benchmark.jpg)
 
 Benchmarks on Intel Core i5-12500H:
 
