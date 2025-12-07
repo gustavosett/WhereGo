@@ -1,4 +1,13 @@
 .git
-bin
-tmp
+assets
+k6
 *.md
+*.yml
+*.yaml
+*.log
+.github
+.env
+.gitignore
+Dockerfile
+LICENSE
+*_test.go
