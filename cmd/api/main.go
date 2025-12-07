@@ -14,16 +14,11 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-func main() {
-	geoService, err := geoip.NewService("data/city.db")
+func NewServer(dbPath string) (*echo.Echo, *geoip.Service, error) {
+	geoService, err := geoip.NewService(dbPath)
 	if err != nil {
-		log.Fatalf("Failed to initialize GeoIP service: %v", err)
+		return nil, nil, err
 	}
-	defer func() {
-		if err := geoService.DB.Close(); err != nil {
-			log.Printf("Failed to close GeoIP database: %v", err)
-		}
-	}()
 
 	handler := &handlers.GeoIPHandler{
 		GeoService: geoService,
@@ -34,6 +29,20 @@ func main() {
 
 	e.GET("/health", handlers.HealthCheck)
 	e.GET("/lookup/:ip", handler.Lookup)
+
+	return e, geoService, nil
+}
+
+func main() {
+	e, geoService, err := NewServer("data/city.db")
+	if err != nil {
+		log.Fatalf("Failed to initialize GeoIP service: %v", err)
+	}
+	defer func() {
+		if err := geoService.DB.Close(); err != nil {
+			log.Printf("Failed to close GeoIP database: %v", err)
+		}
+	}()
 
 	port := os.Getenv("PORT")
 	if port == "" {
