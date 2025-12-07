@@ -33,7 +33,7 @@ k6 run run-with-report.js
 
 Once the test completes:
 
-1. Look for the `result.html` file generated in this directory.
+1. Look for the `index.html` file generated in this directory.
 2. Open it in your web browser.
 3. Use the generated charts and metrics to validate the "Ultra-fast" claims (e.g., verifying p95 latency < 50ms).
 

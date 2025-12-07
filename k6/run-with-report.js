@@ -8,7 +8,7 @@ export default testScript.default;
 
 export function handleSummary(data) {
   return {
-    "result.html": htmlReport(data),
+    "index.html": htmlReport(data),
     stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }
