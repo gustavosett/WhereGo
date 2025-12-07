@@ -44,43 +44,87 @@ curl http://localhost:8080/lookup/8.8.8.8
 Response:
 ```json
 {
-  "City": {
-    "Names": {"en": "Mountain View", ...},
-    "GeoNameID": 5375480
-  },
-  "Country": {
-    "Names": {"en": "United States", "es": "Estados Unidos", ...},
-    "IsoCode": "US",
-    "GeoNameID": 6252001,
-    "IsInEuropeanUnion": false
-  },
-  "Continent": {
-    "Names": {"en": "North America", ...},
-    "Code": "NA",
-    "GeoNameID": 6255149
-  },
-  "Location": {
-    "TimeZone": "America/Los_Angeles",
-    "Latitude": 37.386,
-    "Longitude": -122.0838,
-    "MetroCode": 807,
-    "AccuracyRadius": 1000
-  },
-  "Postal": {"Code": "94035"},
-  "Subdivisions": [{"Names": {"en": "California"}, "IsoCode": "CA", ...}],
-  "RegisteredCountry": {...},
-  "RepresentedCountry": {...},
-  "Traits": {
-    "IsAnonymousProxy": false,
-    "IsAnycast": false,
-    "IsSatelliteProvider": false
-  }
+    "traits": {
+        "ip_address": "8.8.8.8",
+        "network": "8.8.8.0/24",
+        "is_anycast": false
+    },
+    "postal": {
+        "code": ""
+    },
+    "continent": {
+        "names": {
+            "de": "Nordamerika",
+            "en": "North America",
+            "es": "Norteamérica",
+            "fr": "Amérique du Nord",
+            "ja": "北アメリカ",
+            "pt-BR": "América do Norte",
+            "ru": "Северная Америка",
+            "zh-CN": "北美洲"
+        },
+        "code": "NA",
+        "geoname_id": 6255149
+    },
+    "city": {
+        "names": {
+            "de": "",
+            ...
+        },
+        "geoname_id": 0
+    },
+    "subdivisions": null,
+    "represented_country": {
+        "names": {
+            "de": "",
+            ...
+        },
+        "iso_code": "",
+        "type": "",
+        "geoname_id": 0,
+        "is_in_european_union": false
+    },
+    "country": {
+        "names": {
+            "de": "USA",
+            "en": "United States",
+            "es": "Estados Unidos",
+            "fr": "États Unis",
+            "ja": "アメリカ",
+            "pt-BR": "EUA",
+            "ru": "США",
+            "zh-CN": "美国"
+        },
+        "iso_code": "US",
+        "geoname_id": 6252001,
+        "is_in_european_union": false
+    },
+    "registered_country": {
+        "names": {
+            "de": "USA",
+            "en": "United States",
+            "es": "Estados Unidos",
+            "fr": "États Unis",
+            "ja": "アメリカ",
+            "pt-BR": "EUA",
+            "ru": "США",
+            "zh-CN": "美国"
+        },
+        "iso_code": "US",
+        "geoname_id": 6252001,
+        "is_in_european_union": false
+    },
+    "location": {
+        "latitude": 37.751,
+        "longitude": -97.822,
+        "time_zone": "America/Chicago",
+        "metro_code": 0,
+        "accuracy_radius": 1000
+    }
 }
 ```
 
 ## Performance
-
-![WhereGo Benchmark](./assets/benchmark.jpg)
 
 Benchmarks on Intel Core i5-12500H:
 
