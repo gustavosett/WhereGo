@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gustavosett/WhereGo/internal/geoip"
 	"github.com/gustavosett/WhereGo/internal/handlers"
@@ -34,8 +35,13 @@ func main() {
 	e.GET("/health", handlers.HealthCheck)
 	e.GET("/lookup/:ip", handler.Lookup)
 
-	log.Println("Starting server on :8080")
-	if err := e.Start(":8080"); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("Starting server on :%s", port)
+	if err := e.Start(":" + port); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
