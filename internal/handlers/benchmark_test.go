@@ -16,7 +16,11 @@ func BenchmarkLookup(b *testing.B) {
 	if err != nil {
 		b.Skip("Database not available")
 	}
-	defer service.DB.Close() //nolint:errcheck
+	defer func() {
+		if err := service.DB.Close(); err != nil {
+			b.Logf("Failed to close database: %v", err)
+		}
+	}()
 
 	e := echo.New()
 	e.GET("/lookup/:ip", (&GeoIPHandler{GeoService: service}).Lookup)
@@ -36,7 +40,11 @@ func BenchmarkLookupParallel(b *testing.B) {
 	if err != nil {
 		b.Skip("Database not available")
 	}
-	defer service.DB.Close() //nolint:errcheck
+	defer func() {
+		if err := service.DB.Close(); err != nil {
+			b.Logf("Failed to close database: %v", err)
+		}
+	}()
 
 	e := echo.New()
 	e.GET("/lookup/:ip", (&GeoIPHandler{GeoService: service}).Lookup)
