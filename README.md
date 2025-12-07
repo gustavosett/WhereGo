@@ -1,6 +1,7 @@
 # WhereGo
 
 [![CI](https://github.com/gustavosett/WhereGo/actions/workflows/ci.yml/badge.svg)](https://github.com/gustavosett/WhereGo/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/gustavosett/WhereGo/graph/badge.svg?token=YOUR_TOKEN)](https://codecov.io/gh/gustavosett/WhereGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gustavosett/WhereGo)](https://goreportcard.com/report/github.com/gustavosett/WhereGo)
 [![Docker Pulls](https://img.shields.io/docker/pulls/gustavosett/wherego)](https://hub.docker.com/r/gustavosett/wherego)
 [![License](https://img.shields.io/github/license/gustavosett/WhereGo)](LICENSE)
@@ -148,6 +149,26 @@ Tests performed on a Docker container restricted to **8 CPUs**:
 | Environment Variable | Default | Description |
 |---------------------|---------|-------------|
 | `PORT` | `8080` | Server port |
+
+## Architecture
+
+WhereGo is designed for high performance and low resource usage.
+
+- **Language**: Go 1.24
+- **Web Framework**: Echo v4 (Fast HTTP router)
+- **Database**: MaxMind MMDB (Memory-mapped for speed)
+- **JSON Serialization**: json-iterator (Faster than stdlib)
+- **Container**: Distroless (Secure and lightweight)
+
+## Roadmap
+
+- [ ] automation to update the database
+- [ ] gRPC endpoint
+- [ ] Built-in rate limiting
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
