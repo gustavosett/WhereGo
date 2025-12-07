@@ -103,7 +103,8 @@ func TestNewServer(t *testing.T) {
 		require.NotNil(t, svc)
 
 		// Clean up
-		svc.DB.Close()
+		svcErr := svc.DB.Close()
+		require.NoError(t, svcErr)
 
 		// Verify Routes are Registered
 		foundRoutes := 0
@@ -134,7 +135,10 @@ func TestHealthCheck_Integration(t *testing.T) {
 
 	e, svc, err := NewServer(dbPath)
 	require.NoError(t, err)
-	defer svc.DB.Close()
+	defer func() {
+		closeErr := svc.DB.Close()
+		require.NoError(t, closeErr)
+	}()
 
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	rec := httptest.NewRecorder()

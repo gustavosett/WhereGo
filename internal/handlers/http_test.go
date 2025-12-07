@@ -10,6 +10,7 @@ import (
 
 	"github.com/gustavosett/WhereGo/internal/geoip"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHealthCheck(t *testing.T) {
@@ -45,7 +46,10 @@ func TestLookupIntegration(t *testing.T) {
 	if err != nil {
 		t.Skipf("Skipping integration test: could not open database at %s: %v", dbPath, err)
 	}
-	defer service.DB.Close()
+	defer func() {
+		closeErr := service.DB.Close()
+		require.NoError(t, closeErr)
+	}()
 
 	h := &GeoIPHandler{GeoService: service}
 	e := echo.New()
@@ -82,7 +86,8 @@ func TestLookupDBError(t *testing.T) {
 		t.Skipf("Skipping integration test: could not open database at %s: %v", dbPath, err)
 	}
 	// Close immediately to simulate error
-	service.DB.Close()
+	closeErr := service.DB.Close()
+	require.NoError(t, closeErr)
 
 	h := &GeoIPHandler{GeoService: service}
 	e := echo.New()

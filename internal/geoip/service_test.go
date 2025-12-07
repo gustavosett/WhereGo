@@ -27,7 +27,8 @@ func TestNewService(t *testing.T) {
 		assert.NotNil(t, svc.DB)
 
 		// Cleanup
-		svc.DB.Close()
+		svcErr := svc.DB.Close()
+		require.NoError(t, svcErr)
 	})
 }
 
@@ -64,7 +65,10 @@ func TestLookupIP_Integration(t *testing.T) {
 
 	svc, err := NewService(dbPath)
 	require.NoError(t, err)
-	defer svc.DB.Close()
+	defer func() {
+		closeErr := svc.DB.Close()
+		require.NoError(t, closeErr)
+	}()
 
 	tests := []struct {
 		name        string

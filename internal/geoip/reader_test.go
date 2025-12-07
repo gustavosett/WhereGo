@@ -181,7 +181,10 @@ func TestReader_Integration_HappyPath(t *testing.T) {
 	t.Run("Open and Lookup", func(t *testing.T) {
 		r, err := Open(dbPath)
 		require.NoError(t, err)
-		defer r.Close()
+		defer func() {
+			closeErr := r.Close()
+			require.NoError(t, closeErr)
+		}()
 
 		city, err := r.City(ip)
 		assert.NoError(t, err)
@@ -197,7 +200,8 @@ func TestReader_Integration_HappyPath(t *testing.T) {
 		require.NoError(t, err)
 		r, err := OpenBytes(b)
 		require.NoError(t, err)
-		r.Close()
+		rErr := r.Close()
+		require.NoError(t, rErr)
 	})
 
 	t.Run("Invalid Path/Bytes", func(t *testing.T) {
@@ -212,7 +216,10 @@ func TestReader_ForcedExecution(t *testing.T) {
 	dbPath := setupIntegration(t)
 	realReader, err := maxminddb.Open(dbPath)
 	require.NoError(t, err)
-	defer realReader.Close()
+	defer func() {
+		closeErr := realReader.Close()
+		require.NoError(t, closeErr)
+	}()
 
 	ip := netip.MustParseAddr("8.8.8.8")
 
@@ -252,7 +259,8 @@ func TestReader_DecodeErrors(t *testing.T) {
 
 	mmdb, _ := maxminddb.OpenBytes(dbBytes)
 	meta := mmdb.Metadata
-	mmdb.Close()
+	mmdbErr := mmdb.Close()
+	require.NoError(t, mmdbErr)
 
 	treeSizeBits := uint(meta.NodeCount) * uint(meta.RecordSize)
 	treeSizeBytes := treeSizeBits / 8
@@ -271,7 +279,10 @@ func TestReader_DecodeErrors(t *testing.T) {
 
 	r, err := OpenBytes(dbBytes)
 	require.NoError(t, err, "OpenBytes should succeed because metadata at EOF is intact")
-	defer r.Close()
+	defer func() {
+		closeErr := r.Close()
+		require.NoError(t, closeErr)
+	}()
 
 	ip := netip.MustParseAddr("8.8.8.8")
 
