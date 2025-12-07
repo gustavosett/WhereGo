@@ -124,6 +124,12 @@ Response:
 }
 ```
 
+### Health Check
+
+```bash
+curl http://localhost:8080/health
+```
+
 ## Performance
 
 ### Load Test Results (K6)
