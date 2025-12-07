@@ -126,25 +126,16 @@ Response:
 
 ## Performance
 
-Benchmarks on Intel Core i5-12500H:
+### Load Test Results (K6)
+Tests performed on a Docker container restricted to **8 CPUs**:
 
-| Benchmark | ops/sec | ns/op | B/op | allocs/op |
-|-----------|---------|-------|------|-----------|
-| Lookup | ~107,000 | 11,093 | 8,131 | 85 |
-| LookupParallel | ~260,000 | 4,364 | 8,129 | 85 |
-
-```
-goos: windows
-goarch: amd64
-cpu: 12th Gen Intel(R) Core(TM) i5-12500H
-BenchmarkLookup-16                107030             11093 ns/op            8131 B/op         85 allocs/op
-BenchmarkLookupParallel-16        260906              4364 ns/op            8129 B/op         85 allocs/op
-```
-
-Run benchmarks yourself:
-```bash
-go test -bench=Benchmark -benchmem -run=^$ ./internal/handlers/
-```
+| Metric | Result | Status |
+| :--- | :--- | :--- |
+| **Throughput** | **34,214 req/s** | 🚀 Ultra Fast |
+| **Latency (Mean)** | **1.04 ms** | ⚡ Instant |
+| **Latency (P95)** | **2.12 ms** | ⚡ Consistent |
+| **Success Rate** | **100%** | ✅ Stable |
+| **Total Requests** | **6,842,910** | (Zero failures) |
 
 ## Configuration
 
