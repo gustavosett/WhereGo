@@ -162,7 +162,8 @@ WhereGo is designed for high performance and low resource usage.
 
 ## Roadmap
 
-- [ ] automation to update the database
+- [ ] Automation to update the database
+- [ ] Load DB in-memory flag
 - [x] Increase test coverage
 - [ ] gRPC endpoint
 - [ ] Built-in rate limiting
