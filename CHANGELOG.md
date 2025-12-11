@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Miscellaneous Tasks
+
+- Update readme
+
+## [1.2.2] - 2025-12-07
+
 ### Features
 
 - Healthcheck on readme
@@ -33,6 +39,7 @@ All notable changes to this project will be documented in this file.
 - Rename benchmark results
 - Increase reader coverage
 - Golangci lint migrate
+- *(changelog)* Update changelog
 
 ## [1.2.1] - 2025-12-07
 
